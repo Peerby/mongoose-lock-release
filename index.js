@@ -3,6 +3,13 @@ module.exports = function lockReleasePlugin (schema, modelName) {
         throw new Error('modelName is required');
     }
 
+    schema.add({
+        locked: {
+            type: Date,
+            default: Date.now
+        }
+    });
+
     schema.methods.lock = function lockInvoice (duration, cb) {
         var now = new Date();
         this.model(modelName).findOneAndUpdate({

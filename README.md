@@ -15,7 +15,7 @@ npm isntall mongoose-lock-release
 
 - with `.lock(duration, callback)` a document is locked until `duration` ms have passed, at which moment it is lockable again. If `lock` does not return a document in the callback, the document is locked and you should abort the process.
 - with `.release(callback)` a document is immediately lockable again.
-
+- this plugin creates a property `locked` on your document.
 
 ## usage
 
