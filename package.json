@@ -1,0 +1,28 @@
+{
+  "name": "mongoose-lock-release",
+  "version": "0.0.1",
+  "description": "Lock Mongoose documents to ensure you're the only consumer. Release when done.",
+  "main": "index.js",
+  "devDependencies": {
+    "async": "1.4.2",
+    "expect.js": "^0.3.1",
+    "faker": "^3.0.1",
+    "mocha": "^2.4.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Peerby/mongoose-lock-release.git"
+  },
+  "keywords": [
+    "mongoose",
+    "lock",
+    "release",
+    "semaphore"
+  ],
+  "author": "godspeedelbow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Peerby/mongoose-lock-release/issues"
+  },
+  "homepage": "https://github.com/Peerby/mongoose-lock-release"
+}
