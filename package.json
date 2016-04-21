@@ -1,6 +1,6 @@
 {
   "name": "mongoose-lock-release",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Lock Mongoose documents to ensure you're the only consumer. Release when done.",
   "main": "index.js",
   "devDependencies": {

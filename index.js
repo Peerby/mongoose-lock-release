@@ -15,7 +15,7 @@ module.exports = function lockReleasePlugin (schema, modelName) {
         this.model(modelName).findOneAndUpdate({
             _id: this._id,
             locked: {
-                $lt: now
+                $lte: now
             }
         }, {
             locked: new Date(now.getTime() + duration)
