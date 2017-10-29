@@ -10,67 +10,77 @@ var expect = require('expect.js');
 var faker = require('faker');
 var async = require('async');
 var _ = require('lodash');
+var lockRelease = require('./index');
+var mongoose = require('mongoose');
 
-// Test subject
-var MySchema = require('./mySchema');
+mongoose.connect('mongodb://localhost/myapp');
+
+var Schema = mongoose.Schema;
+
+var MySchema = new Schema({ order: { id: String }, user: { email: String } });
+
+MySchema.plugin(lockRelease, 'MySchema');
+
+var MyModel = mongoose.model('MySchema', MySchema);
+
 
 describe('mongoose-lock-release', function () {
     var lockTime = 100000;
-    var mySchema;
+    var myModel;
     before(function (done) {
-        new MySchema({
+        MyModel.create({
             order: {
                 id: faker.random.uuid()
             },
             user: {
                 email: faker.internet.email()
             }
-        }).save(function(err, _mySchema) {
-            mySchema = _mySchema;
+        }, function(err, _myModel) {
+            myModel = _myModel;
             done(err);
         });
     });
     it('should lock it if it is not locked yet', function (done) {
         async.waterfall([
             function lock(cb) {
-                mySchema.lock(lockTime, cb);
+                myModel.lock(lockTime, cb);
             },
-            function check(mySchema, cb) {
-                expect(mySchema).to.be.ok();
-                expect(mySchema.locked > new Date()).to.be(true);
+            function check(myModel, cb) {
+                expect(myModel).to.be.ok();
+                expect(myModel.locked > new Date()).to.be(true);
                 cb();
             }
         ], done);
     });
     it('should refuse to lock if it is already locked', function (done) {
-        mySchema.lock(lockTime, function(err, mySchema) {
+        myModel.lock(lockTime, function(err, myModel) {
             expect(err).to.not.be.ok();
-            expect(mySchema).to.not.be.ok();
+            expect(myModel).to.not.be.ok();
             done();
         });
     });
     it('should release the lock', function (done) {
-        mySchema.release(function(err, _mySchema) {
+        myModel.release(function(err, _myModel) {
             expect(err).to.not.be.ok();
-            expect(_mySchema).to.be.ok();
-            mySchema = _mySchema;
+            expect(_myModel).to.be.ok();
+            myModel = _myModel;
             done();
         });
     });
     it('should fail one lock if two are set concurrently', function (done) {
         async.parallel([
             function lock(cb) {
-                mySchema.lock(lockTime, cb);
+                myModel.lock(lockTime, cb);
             },
             function lock(cb) {
-                mySchema.lock(lockTime, cb);
+                myModel.lock(lockTime, cb);
             },
-        ], function (err, mySchemas) {
+        ], function (err, myModels) {
             if (err) {
                 return done(err);
             }
 
-            var countLocks = _.filter(mySchemas, function(i) { return i && i.locked; });
+            var countLocks = _.filter(myModels, function(i) { return i && i.locked; });
             expect(countLocks.length).to.be(1);
             done();
         });
@@ -83,11 +93,11 @@ describe('mongoose-lock-release', function () {
         ], done);
 
         function release(cb) {
-            mySchema.release(cb);
+            myModel.release(cb);
         }
 
         function lock(cb) {
-            mySchema.lock(1, cb);
+            myModel.lock(1, cb);
         }
     });
 });
