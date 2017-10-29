@@ -11,26 +11,52 @@ module.exports = function lockReleasePlugin (schema, modelName) {
     });
 
     schema.methods.lock = function lockInvoice (duration, cb) {
-        var now = new Date();
-        this.model(modelName).findOneAndUpdate({
-            _id: this._id,
-            locked: {
-                $lte: now
-            }
-        }, {
-            locked: new Date(now.getTime() + duration)
-        }, {
-            new: true
-        }, cb);
+        var self = this;
+        return new Promise(function(resolve, reject) {
+            var now = new Date();
+            self.model(modelName).findOneAndUpdate({
+                _id: self._id,
+                locked: {
+                    $lte: now
+                }
+            }, {
+                locked: new Date(now.getTime() + duration)
+            }, {
+                new: true
+            }, function() {
+                var args = [].slice.call(arguments);
+                var err = args.shift();
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve.apply(null, args);
+                }
+                cb && cb.apply(null, arguments)
+            });
+        });
     };
 
     schema.methods.release = function releaseInvoice (cb) {
-        this.model(modelName).findOneAndUpdate({
-            _id: this._id,
-        }, {
-            locked: new Date()
-        }, {
-            new: true
-        }, cb);
+        var self = this;
+        return new Promise(function(resolve, reject) {
+            self.model(modelName).findOneAndUpdate({
+                _id: self._id,
+            }, {
+                locked: new Date()
+            }, {
+                new: true
+            }, function() {
+                var args = [].slice.call(arguments);
+                var err = args.shift();
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve.apply(null, args);
+                }
+                cb && cb.apply(null, arguments)
+            });
+        });
     };
 }
